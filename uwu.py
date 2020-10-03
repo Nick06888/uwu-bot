@@ -1,3 +1,4 @@
+from functions import *
 import discord
 from discord.ext import commands
 import praw
@@ -30,15 +31,6 @@ client = commands.Bot(command_prefix="uwu ")
 client.remove_command("help")
 
 
-def is_dupe(guild_id, post_id):
-    combined_id = f"{guild_id}-{post_id}"
-    with open("duplicates.txt", "r") as file:
-        data = file.readlines()
-        for line in data:
-            if combined_id in line:
-                return True
-        return False
-
 # TODO: uwu not Uwu
 # # help user if they type Uwu/UwU... instead of uwu
 # @client.event
@@ -53,7 +45,7 @@ def is_dupe(guild_id, post_id):
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.online, activity=discord.Game("uwu help"))
-    print("uwu!")
+    print("uwu")
 
 
 # show help text
@@ -78,6 +70,17 @@ async def help(ctx):
     embed.add_field(name="`uwu amongus`", value="beta", inline=False)
 
     await ctx.send(embed=embed)
+
+
+# clear the duplicates.txt file, use this every once in a while to keep the bot fast!
+@client.command()
+async def clear_dupes_list(ctx):
+    authorized_ids = [187568903084441600, 159985870458322944]
+    if ctx.author.id in authorized_ids:
+        clear_dupes("duplicates.txt")
+        await ctx.send("cleared!")
+    else:
+        await ctx.send("Chotto matte!....you can't do that!")
 
 
 # get ping of the bot
@@ -145,96 +148,65 @@ async def joke(ctx):
 # [MAIN FUNCTIONALITY] posts waifu pics uwu
 @client.command(aliases=["anime"])
 async def waifu(ctx):
+
     selected_posts = []
     subreddits = ["animeponytails", "awwnime", "streetmoe", "cutelittlefangs", "Gunime", "HimeCut",
                   "longhairedwaifus", "shorthairedwaifus", "twintails", "megane", "pouts", "Tsunderes", "ZettaiRyouiki"]
 
-    for submission in reddit.subreddit(random.choice(subreddits)).hot(limit=10):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=30)
+    embed = prepare_embed(ctx, post, color=discord.Color.purple())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.purple()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts waifu arts uwu
 @client.command(aliases=["fan-art", "fanart", "art"])
 async def animeart(ctx):
+
     selected_posts = []
     subreddits = ["Patchuu", "Pixiv"]
 
-    for submission in reddit.subreddit(random.choice(subreddits)).hot(limit=30):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=30)
+    embed = prepare_embed(ctx, post, color=discord.Color.dark_magenta())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.orange()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts wallpapers uwu
 @client.command(aliases=["wallpapers"])
 async def wallpaper(ctx):
+
     selected_posts = []
     subreddits = ["Animewallpaper", "Moescape", "wallpapers", "MinimalWallpaper", "EarthPorn"]
 
-    for submission in reddit.subreddit(random.choice(subreddits)).hot(limit=15):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
-
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blue()
-    )
-    embed.set_image(url=post.url)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=15)
+    embed = prepare_embed(ctx, post, color=discord.Color.gold())
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts memes uwu
 @client.command(aliases=["memes", "funny"])
 async def meme(ctx):
+
     selected_posts = []
     subreddits = ["memes", "dankmemes", "me_irl", "wholesomememes"]
 
-    for submission in reddit.subreddit(random.choice(subreddits)).hot(limit=15):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=15)
+    embed = prepare_embed(ctx, post)
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blue()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts programming memes uwu
 @client.command(aliases=["ProgrammerHumor", "programmingmeme", "codingmeme", "code"])
 async def programming_meme(ctx):
+
     selected_posts = []
     subreddits = ["ProgrammerHumor", "ProgrammerAnimemes", "Recursion"]
 
-    for submission in reddit.subreddit(random.choice(subreddits)).hot(limit=20):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=15)
+    embed = prepare_embed(ctx, post)
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blue()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
@@ -268,90 +240,65 @@ async def hentai(ctx):
 # [MAIN FUNCTIONALITY] posts a destiny meme
 @client.command(aliases=["destinymeme"])
 async def destiny(ctx):
+
     selected_posts = []
+    subreddits = ["destinymemes"]
 
-    for submission in reddit.subreddit("DestinyMemes").hot(limit=20):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=20)
+    embed = prepare_embed(ctx, post, color=discord.Color.blurple())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blurple()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts a PUBG meme
 @client.command(aliases=["pubgay", "pubgmeme"])
 async def pubg(ctx):
+
     selected_posts = []
+    subreddits = ["pubgmemes"]
 
-    for submission in reddit.subreddit("PUBGmemes").hot(limit=20):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=20)
+    embed = prepare_embed(ctx, post, color=discord.Color.blurple())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blurple()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts a apex legends meme
 @client.command(aliases=["apexmeme", "apexlegends"])
 async def apex(ctx):
+
     selected_posts = []
+    subreddits = ["apexoutlands"]
 
-    for submission in reddit.subreddit("ApexOutlands").hot(limit=20):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=20)
+    embed = prepare_embed(ctx, post, color=discord.Color.blurple())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blurple()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts a warzone meme
 @client.command(aliases=["warzonememes", "warzonememe"])
 async def warzone(ctx):
+
     selected_posts = []
+    subreddits = ["warzonememes"]
 
-    for submission in reddit.subreddit("warzonememes").hot(limit=20):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=20)
+    embed = prepare_embed(ctx, post, color=discord.Color.blurple())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blurple()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
 # [MAIN FUNCTIONALITY] posts a among us meme
 @client.command(aliases=["cursedamongus", "among_us", "among", "amongusmeme"])
 async def amongus(ctx):
+
     selected_posts = []
+    subreddits = ["cursedamongus"]
 
-    for submission in reddit.subreddit("cursedamongus").hot(limit=20):
-        if not submission.stickied and not submission.over_18:
-            selected_posts.append(submission)
-    post = random.choice(selected_posts)
+    post = select_post(ctx, reddit, subreddits, selected_posts, limit=20)
+    embed = prepare_embed(ctx, post, color=discord.Color.blurple())
 
-    embed = discord.Embed(
-        title=post.title,
-        color=discord.Color.blurple()
-    )
-    embed.set_image(url=post.url)
     await ctx.send(embed=embed)
 
 
