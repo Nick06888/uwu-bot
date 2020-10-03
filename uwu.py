@@ -5,7 +5,7 @@ import praw
 import random
 import os
 # from config import discord_config, reddit_config
-
+#
 # # For local testing only
 # reddit = praw.Reddit(client_id=reddit_config["client_id"],
 #                      client_secret=reddit_config["client_secret"],
@@ -101,7 +101,10 @@ async def ques(ctx):
 # deletes a certain number of recent msgs
 @client.command(aliases=["clean", "delete"])
 async def clear(ctx, amount=2):
-    await ctx.channel.purge(limit=amount)
+    if ctx.author.guild_permissions.manage_messages:
+        await ctx.channel.purge(limit=amount)
+    else:
+        await ctx.send("Please make sure we both have the `Manage Messages` permission.")
 
 
 # uwu
