@@ -297,7 +297,7 @@ async def warzone(ctx):
 async def amongus(ctx):
 
     selected_posts = []
-    subreddits = ["cursedamongus"]
+    subreddits = ["AmongUs"]
 
     post = select_post(ctx, reddit, subreddits, selected_posts, limit=20)
     embed = prepare_embed(ctx, post, color=discord.Color.blurple())
