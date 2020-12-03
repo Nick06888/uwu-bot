@@ -309,9 +309,10 @@ async def amongus(ctx):
 
 @client.command()
 async def giverole(ctx):
+    await ctx.send("OK")
     for m in ctx.guild.members:
         await m.add_roles(ctx.guild.get_role(784014271528960012))
-        await asyncio.sleep(5)
+        await asyncio.sleep(2)
 
 
 # run the bot
