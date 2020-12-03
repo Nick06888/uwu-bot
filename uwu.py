@@ -1,3 +1,5 @@
+import asyncio
+
 from functions import *
 import discord
 from discord.ext import commands
@@ -104,7 +106,7 @@ async def clear(ctx, amount=2):
     if ctx.author.guild_permissions.manage_messages:
         await ctx.channel.purge(limit=amount)
     else:
-        await ctx.send("Please make sure we both have the `Manage Messages` permission.")
+        await ctx.send("You don't have the `Manage Messages` permission.")
 
 
 # uwu
@@ -303,6 +305,13 @@ async def amongus(ctx):
     embed = prepare_embed(ctx, post, color=discord.Color.blurple())
 
     await ctx.send(embed=embed)
+
+
+@client.command()
+async def giverole(ctx):
+    for m in ctx.guild.members:
+        await m.add_roles(ctx.guild.get_role(784014271528960012))
+        await asyncio.sleep(5)
 
 
 # run the bot

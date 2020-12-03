@@ -49,3 +49,4 @@ def prepare_embed(ctx, post, color=discord.Color.blue()):
     )
     embed.set_image(url=post.url)
     return embed
+
